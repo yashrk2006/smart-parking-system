@@ -9,6 +9,7 @@
 }
 
 @layer utilities {
+  /* Custom scrollbar */
   .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
   }
@@ -23,5 +24,47 @@
   
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-500;
+  }
+
+  /* Page transition animation */
+  .view-transition {
+    animation: viewFadeIn 0.3s ease-out;
+  }
+
+  @keyframes viewFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Fade in for cards */
+  .fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Slide up for modals/panels */
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

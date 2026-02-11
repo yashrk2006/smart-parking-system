@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -9,13 +10,27 @@ import LoginPage from './components/LoginPage';
 import ZoneWizard from './components/ZoneWizard';
 import ResponseTeam from './components/ResponseTeam';
 import Enforcement from './components/Enforcement';
+import ErrorBoundary from './components/ErrorBoundary';
+import LoadingSkeleton from './components/LoadingSkeleton';
 import { useWebSocket } from './hooks/useWebSocket';
 import { dashboardAPI } from './services/api';
-import type { DashboardKPIs, ParkingZone, Violation, User, ParkingSession } from './types';
+import { MOCK_KPI_DATA, MOCK_ZONES_DATA, MOCK_VIOLATIONS_DATA, MOCK_USER_HISTORY } from './data/mockData';
+import type { DashboardKPIs, ParkingZone, Violation, User } from './types';
+
+// View title map for browser tab
+const VIEW_TITLES: Record<string, string> = {
+    dashboard: 'Dashboard',
+    map: 'City Map',
+    violations: 'Enforcement',
+    response: 'Response Team',
+    ledger: 'Audit Ledger',
+    wizard: 'Create Zone',
+    citizen: 'Citizen Portal',
+};
 
 function App() {
     // Navigation History State
-    const [history, setHistory] = useState<string[]>(['dashboard']); // Initial view
+    const [history, setHistory] = useState<string[]>(['dashboard']);
     const [currentIndex, setCurrentIndex] = useState(0);
     const view = history[currentIndex];
 
@@ -30,8 +45,15 @@ function App() {
     const [zones, setZones] = useState<ParkingZone[]>([]);
     const [kpis, setKpis] = useState<DashboardKPIs | undefined>(undefined);
     const [violations, setViolations] = useState<Violation[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const { connected, subscribe } = useWebSocket();
+
+    // Update page title based on view
+    useEffect(() => {
+        const title = VIEW_TITLES[view] || 'Dashboard';
+        document.title = `${title} — Smart Parking`;
+    }, [view]);
 
     // Custom View Navigation Handler
     const handleViewChange = (newView: string) => {
@@ -55,55 +77,19 @@ function App() {
         }
     };
 
-    // Mock Data Constants (Aligned with Types)
-    const MOCK_KPI_DATA: DashboardKPIs = {
-        total_zones: 6,
-        total_spots: 1250,
-        occupied_spots: 840,
-        avg_occupancy: 67,
-        active_breaches: 5,
-        ai_status: 'online',
-        system_health: 'healthy',
-        active_zones: 6,
-        revenue_today: 45000,
-        total_vehicles: 840,
-        system_uptime: 99.9,
-    };
-
-    const MOCK_ZONES_DATA: ParkingZone[] = [
-        { id: 'z1', name: 'Connaught Place', max_capacity: 150, current_count: 120, status: 'active', capacity_status: 'over_capacity', location_name: 'Central', location_lat: 28.6328, location_lng: 77.2197, reserved_slots: 5, grace_threshold: 10, fine_per_excess: 500 },
-        { id: 'z2', name: 'Khan Market', max_capacity: 80, current_count: 75, status: 'active', capacity_status: 'near_capacity', location_name: 'South', location_lat: 28.6001, location_lng: 77.2270, reserved_slots: 2, grace_threshold: 5, fine_per_excess: 1000 },
-        { id: 'z3', name: 'Lajpat Nagar', max_capacity: 200, current_count: 110, status: 'active', capacity_status: 'normal', location_name: 'South East', location_lat: 28.5677, location_lng: 77.2433, reserved_slots: 10, grace_threshold: 15, fine_per_excess: 300 },
-        { id: 'z4', name: 'Karol Bagh', max_capacity: 120, current_count: 95, status: 'active', capacity_status: 'near_capacity', location_name: 'West', location_lat: 28.6441, location_lng: 77.1884, reserved_slots: 0, grace_threshold: 0, fine_per_excess: 0 },
-        { id: 'z5', name: 'Chandni Chowk', max_capacity: 300, current_count: 280, status: 'active', capacity_status: 'over_capacity', location_name: 'North', location_lat: 28.6562, location_lng: 77.2300, reserved_slots: 0, grace_threshold: 0, fine_per_excess: 0 },
-        { id: 'z6', name: 'Saket', max_capacity: 400, current_count: 150, status: 'active', capacity_status: 'normal', location_name: 'South', location_lat: 28.5285, location_lng: 77.2218, reserved_slots: 0, grace_threshold: 0, fine_per_excess: 0 },
-    ];
-
-    const MOCK_VIOLATIONS_DATA: Violation[] = [
-        { id: 'v1', zone_id: 'z2', zone_name: 'Khan Market', vehicle_number: 'DL-3C-AB-1234', violation_type: 'Overstay', status: 'pending', severity: 'medium', excess_count: 1, fine_amount: 500, detected_at: new Date().toISOString() },
-        { id: 'v2', zone_id: 'z1', zone_name: 'Connaught Place', vehicle_number: 'UP-16-Z-1002', violation_type: 'No Parking', status: 'pending', severity: 'high', excess_count: 0, fine_amount: 1000, detected_at: new Date(Date.now() - 900000).toISOString() }
-    ];
-
-    // Mock User History (For Citizen App)
-    const MOCK_USER_HISTORY: ParkingSession[] = [
-        { id: 's1', zone_id: 'z1', zone_name: 'Connaught Place', vehicle_number: 'DL-3C-AB-1234', start_time: new Date(Date.now() - 1000 * 60 * 45).toISOString(), cost: 45, status: 'active' },
-        { id: 's2', zone_id: 'z3', zone_name: 'Lajpat Nagar', vehicle_number: 'DL-3C-AB-1234', start_time: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), end_time: new Date(Date.now() - 1000 * 60 * 60 * 22).toISOString(), cost: 120, status: 'completed' },
-        { id: 's3', zone_id: 'z2', zone_name: 'Khan Market', vehicle_number: 'DL-3C-AB-1234', start_time: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), end_time: new Date(Date.now() - 1000 * 60 * 60 * 46).toISOString(), cost: 80, status: 'completed' }
-    ];
-
     // Load initial data on login
     useEffect(() => {
         if (!isAuthenticated) return;
 
         const fetchData = async () => {
+            setIsLoading(true);
             try {
                 const [liveZones, liveKPIs, activeViolations] = await Promise.all([
-                    dashboardAPI.getZonesLive().catch(() => null), // Catch individual failures
+                    dashboardAPI.getZonesLive().catch(() => null),
                     dashboardAPI.getKPIs().catch(() => null),
                     dashboardAPI.getActiveViolations().catch(() => [])
                 ]);
 
-                // Apply Live Data OR Fallback
                 if (liveZones && liveZones.length > 0) {
                     setZones(liveZones);
                 } else {
@@ -128,6 +114,8 @@ function App() {
                 setKpis(MOCK_KPI_DATA);
                 setZones(MOCK_ZONES_DATA);
                 setViolations(MOCK_VIOLATIONS_DATA);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -145,7 +133,6 @@ function App() {
                     : z
             ));
 
-            // Update Total Vehicles KPI locally
             if (kpis) {
                 setKpis(prev => prev ? ({
                     ...prev,
@@ -161,7 +148,6 @@ function App() {
                 setKpis(prev => prev ? ({ ...prev, active_breaches: prev.active_breaches + 1 }) : undefined);
             }
 
-            // Play alert sound
             new Audio('/alert.mp3').play().catch(() => { });
         });
 
@@ -176,7 +162,6 @@ function App() {
         setUserRole(role);
         setIsAuthenticated(true);
 
-        // Redirect based on role and reset history
         if (role === 'user') {
             setHistory(['citizen']);
             setCurrentIndex(0);
@@ -195,38 +180,40 @@ function App() {
         localStorage.removeItem('token');
     };
 
-    // Handle Wizard Completion
     const handleZoneCreated = (newZone: ParkingZone) => {
         setZones(prev => [...prev, newZone]);
-
-        // Return to dashboard
         setHistory(prev => [...prev, 'dashboard']);
         setCurrentIndex(prev => prev + 1);
-
-        // Show simulated alert (in a real app, uses toast)
         console.log(`Zone created: ${newZone.name}`);
     };
 
-    // Handle Dispatch from Enforcement to Response Team
     const handleEnforcementDispatch = (_violation: Violation) => {
-        // Switch to the response view
         handleViewChange('response');
-        // In a real implementation, we would pass this violation to the ResponseTeam component
-        // potentially via a context or a selectedViolation state.
-        // For now, simple navigation is sufficient to unblock the UI.
     };
 
     if (!isAuthenticated) {
-        return <LoginPage onLogin={handleLoginSuccess} />;
+        return (
+            <>
+                <Toaster position="top-right" toastOptions={{
+                    style: { background: '#1e293b', color: '#f1f5f9', border: '1px solid #334155' },
+                }} />
+                <LoginPage onLogin={handleLoginSuccess} />
+            </>
+        );
     }
 
-    // Render Full Screen Citizen View ONLY for Citizen Role
     if (view === 'citizen' && userRole === 'user') {
         return <CitizenApp zones={zones} user={user} history={MOCK_USER_HISTORY} />;
     }
 
     return (
         <div className="flex h-screen bg-tactical-bg text-gray-100 overflow-hidden font-inter">
+            <Toaster position="top-right" toastOptions={{
+                style: { background: '#1e293b', color: '#f1f5f9', border: '1px solid #334155' },
+                success: { iconTheme: { primary: '#10b981', secondary: '#f1f5f9' } },
+                error: { iconTheme: { primary: '#ef4444', secondary: '#f1f5f9' } },
+            }} />
+
             <Sidebar
                 currentView={view}
                 setView={handleViewChange}
@@ -244,8 +231,10 @@ function App() {
                     onForward={goForward}
                     canBack={currentIndex > 0}
                     canForward={currentIndex < history.length - 1}
+                    zones={zones}
+                    violations={violations}
+                    onNavigate={handleViewChange}
                 >
-                    {/* Inject Create Zone Button for Admin */}
                     {userRole !== 'user' && view === 'dashboard' && (
                         <button
                             onClick={() => handleViewChange('wizard')}
@@ -256,40 +245,54 @@ function App() {
                     )}
                 </Header>
 
-                <div className="flex-1 overflow-auto p-6 scrollbar-thin">
-                    {view === 'dashboard' && kpis && (
-                        <Dashboard
-                            kpis={kpis}
-                            zones={zones}
-                            violations={violations}
-                            onBack={goBack}
-                            onNext={goForward} // Or handleViewChange('map') if defining a flow
-                        />
-                    )}
-                    {view === 'wizard' && (
-                        <ZoneWizard
-                            onCancel={() => goBack()}
-                            onComplete={handleZoneCreated}
-                        />
-                    )}
-                    {view === 'map' && <CityMap zones={zones} />}
-                    {view === 'ledger' && <AuditLedger />}
-                    {view === 'citizen' && (
-                        <div className="h-full border border-tactical-border rounded-xl overflow-hidden shadow-2xl relative">
-                            {/* Render Citizen App in a 'Simulator' frame for Admins */}
-                            <CitizenApp zones={zones} user={user || { id: 'admin-sim', username: 'Admin Simulator', email: 'admin@mcd.gov.in', role: 'admin' }} history={MOCK_USER_HISTORY} />
-                        </div>
-                    )}
-                    {view === 'violations' && (
-                        <Enforcement
-                            violations={violations}
-                            zones={zones}
-                            onDispatch={handleEnforcementDispatch} // Ensure this handler exists in App.tsx or use a placeholder
-                        />
-                    )}
-                    {view === 'response' && (
-                        <ResponseTeam violations={violations} zones={zones} />
-                    )}
+                <div className="flex-1 overflow-auto p-4 md:p-6 scrollbar-thin">
+                    <div className="view-transition">
+                        <ErrorBoundary fallbackMessage="Dashboard failed to load.">
+                            {isLoading && view === 'dashboard' && <LoadingSkeleton />}
+                            {!isLoading && view === 'dashboard' && kpis && (
+                                <Dashboard
+                                    kpis={kpis}
+                                    zones={zones}
+                                    violations={violations}
+                                    onBack={goBack}
+                                    onNext={goForward}
+                                />
+                            )}
+                        </ErrorBoundary>
+                        <ErrorBoundary fallbackMessage="Zone Wizard encountered an error.">
+                            {view === 'wizard' && (
+                                <ZoneWizard
+                                    onCancel={() => goBack()}
+                                    onComplete={handleZoneCreated}
+                                />
+                            )}
+                        </ErrorBoundary>
+                        <ErrorBoundary fallbackMessage="Map failed to load.">
+                            {view === 'map' && <div className="h-[calc(100vh-120px)]"><CityMap zones={zones} /></div>}
+                        </ErrorBoundary>
+                        <ErrorBoundary fallbackMessage="Audit Ledger failed to load.">
+                            {view === 'ledger' && <AuditLedger />}
+                        </ErrorBoundary>
+                        {view === 'citizen' && (
+                            <div className="h-full border border-tactical-border rounded-xl overflow-hidden shadow-2xl relative">
+                                <CitizenApp zones={zones} user={user || { id: 'admin-sim', username: 'Admin Simulator', email: 'admin@mcd.gov.in', role: 'admin' }} history={MOCK_USER_HISTORY} />
+                            </div>
+                        )}
+                        <ErrorBoundary fallbackMessage="Enforcement module failed.">
+                            {view === 'violations' && (
+                                <Enforcement
+                                    violations={violations}
+                                    zones={zones}
+                                    onDispatch={handleEnforcementDispatch}
+                                />
+                            )}
+                        </ErrorBoundary>
+                        <ErrorBoundary fallbackMessage="Response Team module failed.">
+                            {view === 'response' && (
+                                <ResponseTeam violations={violations} zones={zones} />
+                            )}
+                        </ErrorBoundary>
+                    </div>
                 </div>
             </main>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Shield, MapPin, Truck, Bike, Clock, CheckCircle, AlertTriangle, User, Navigation, Phone } from 'lucide-react';
+import toast from 'react-hot-toast';
 import type { Violation, ParkingZone, ResponseDeployment } from '../types';
 
 interface ResponseTeamProps {
@@ -39,7 +40,7 @@ export default function ResponseTeam({ violations, zones }: ResponseTeamProps) {
         setDeployments(prev => [newDeployment, ...prev]);
 
         // Simulate API call success
-        setTimeout(() => alert(`Team dispatched to ${violation.vehicle_number}`), 500);
+        setTimeout(() => toast.success(`Team dispatched to ${violation.vehicle_number}`), 500);
     };
 
     const updateStatus = async (id: string, status: string) => {
@@ -51,14 +52,14 @@ export default function ResponseTeam({ violations, zones }: ResponseTeamProps) {
     return (
         <div className="flex flex-col h-full gap-6">
             {/* Top Stats */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard icon={Shield} label="Total Units" value="12" sub="Active Shift" color="text-blue-400" />
                 <StatCard icon={Bike} label="Bike Squads" value="8" sub="Rapid Response" color="text-emerald-400" />
                 <StatCard icon={Truck} label="Tow Trucks" value="4" sub="Heavy Duty" color="text-amber-400" />
                 <StatCard icon={CheckCircle} label="Available" value="5" sub="Ready to Deploy" color="text-gray-300" />
             </div>
 
-            <div className="flex-1 grid grid-cols-3 gap-6 min-h-0">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0">
                 {/* Active Violations (Dispatch Source) */}
                 <div className="col-span-1 bg-tactical-card border border-tactical-border rounded-xl flex flex-col overflow-hidden">
                     <div className="p-4 border-b border-tactical-border bg-slate-800/50 flex justify-between items-center">

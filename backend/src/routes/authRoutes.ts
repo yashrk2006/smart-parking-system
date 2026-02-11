@@ -27,18 +27,23 @@ router.post('/login', async (req, res) => {
         });
     }
 
-    // In production, use bcrypt.compare here
+    // Check database for user
     try {
         const result = await query('SELECT * FROM users WHERE email = $1', [email]);
 
         if (result.rows.length === 0) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            // No user found — for demo, allow any credentials as admin
+            return res.json({
+                token: 'mock-token-demo',
+                user: { id: 'demo-1', username: email.split('@')[0] || 'Demo User', email, role: 'admin', department: 'Demo' }
+            });
         }
 
-        const user = result.rows[0];
+        const user = result.rows[0] as any;
 
-        // Mock token generation
-        const token = 'mock-jwt-token-xyz-123';
+        // In production: use bcrypt.compare(password, user.password_hash)
+        // For demo: accept any password for existing DB users
+        const token = 'mock-jwt-token-' + user.id;
 
         res.json({
             token,

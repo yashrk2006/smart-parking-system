@@ -7,7 +7,7 @@ export function useWebSocket() {
     const [connected, setConnected] = useState(false);
 
     useEffect(() => {
-        const newSocket = io('http://localhost:5000', {
+        const newSocket = io(window.location.origin, {
             transports: ['websocket'],
             reconnection: true,
             reconnectionAttempts: 5,

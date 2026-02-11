@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Filter, Search, Shield, AlertTriangle, CheckCircle, Clock, MapPin, Download } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { exportViolationsCSV } from '../utils/exportCSV';
 import type { Violation, ParkingZone } from '../types';
 
 interface EnforcementProps {
@@ -54,7 +56,7 @@ export default function Enforcement({ violations, zones, onDispatch }: Enforceme
             onDispatch(violation);
 
             // Show feedback
-            alert(`Dispatching unit to ${violation.vehicle_number} at ${getZoneName(violation.zone_id)}!`);
+            toast.success(`Team dispatched to ${violation.vehicle_number} at ${getZoneName(violation.zone_id)}`);
 
             // Optimistically update the list to remove it or mark as dispatched
             // activeViolations is derived, so we update the source 'violations'
@@ -69,14 +71,14 @@ export default function Enforcement({ violations, zones, onDispatch }: Enforceme
             // Actually, looks like checks valid logic. 
         } catch (e) {
             console.error("Dispatch Error", e);
-            alert("Error dispatching team. Please try again.");
+            toast.error('Error dispatching team. Please try again.');
         }
     };
 
     return (
         <div className="flex flex-col h-full gap-6">
             {/* Header / Stats */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard label="Active Violations" value={violations.filter(v => v.status === 'pending').length} color="text-red-500" icon={AlertTriangle} />
                 <StatCard label="Resolved Today" value={142} color="text-emerald-500" icon={CheckCircle} />
                 <StatCard label="Fine Collected" value="₹ 45,200" color="text-amber-500" icon={Shield} />
@@ -119,7 +121,10 @@ export default function Enforcement({ violations, zones, onDispatch }: Enforceme
                     </select>
                 </div>
 
-                <button className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg border border-tactical-border flex items-center gap-2 transition-colors">
+                <button
+                    onClick={() => { exportViolationsCSV(filteredData, zones); toast.success('CSV exported successfully'); }}
+                    className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg border border-tactical-border flex items-center gap-2 transition-colors"
+                >
                     <Download size={18} /> Export CSV
                 </button>
             </div>

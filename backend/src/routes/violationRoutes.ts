@@ -8,21 +8,21 @@ router.get('/', async (req, res) => {
     try {
         const { status, zone_id } = req.query;
         let sql = `
-      SELECT v.*, z.name as zone_name 
-      FROM violations v 
-      JOIN parking_zones z ON v.zone_id = z.id
-      WHERE 1=1
-    `;
+            SELECT v.*, z.name as zone_name
+            FROM violations v
+            JOIN parking_zones z ON v.zone_id = z.id
+            WHERE 1=1
+        `;
         const params: any[] = [];
 
         if (status) {
             params.push(status);
-            sql += ` AND v.status = $${params.length}`;
+            sql += ` AND v.status = ?`;
         }
 
         if (zone_id) {
             params.push(zone_id);
-            sql += ` AND v.zone_id = $${params.length}`;
+            sql += ` AND v.zone_id = ?`;
         }
 
         sql += ' ORDER BY v.detected_at DESC';
@@ -38,13 +38,14 @@ router.get('/', async (req, res) => {
 router.post('/:id/resolve', async (req, res) => {
     try {
         const { notes } = req.body;
-        const result = await query(
-            `UPDATE violations 
-       SET status = 'resolved', resolved_at = NOW(), notes = $2 
-       WHERE id = $1 
-       RETURNING *`,
-            [req.params.id, notes]
+        await query(
+            `UPDATE violations
+             SET status = 'resolved', resolved_at = datetime('now'), notes = ?
+             WHERE id = ?`,
+            [notes, req.params.id]
         );
+
+        const result = await query('SELECT * FROM violations WHERE id = ?', [req.params.id]);
 
         if (result.rows.length === 0) return res.status(404).json({ message: 'Violation not found' });
 

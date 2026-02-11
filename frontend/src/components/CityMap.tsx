@@ -67,8 +67,8 @@ export default function CityMap({ zones }: CityMapProps) {
                     }
                 },
                 (error) => {
-                    console.error("Error getting location", error);
-                    // Fallback to Connaught Place center if location fails
+                    // Location denied or unavailable — silently fall back to Delhi center
+                    if (error.code !== 1) console.warn("Geolocation unavailable, using default");
                     setUserLocation([28.6304, 77.2177]);
                 }
             );
