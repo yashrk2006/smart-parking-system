@@ -1,4 +1,4 @@
-import type { DashboardKPIs, ParkingZone, Violation, ParkingSession } from '../types';
+import type { DashboardKPIs, ParkingZone, Violation, ParkingSession, User, ResponseDeployment } from '../types';
 
 export const MOCK_KPI_DATA: DashboardKPIs = {
     total_zones: 6,
@@ -38,9 +38,9 @@ export const mockAPI = {
     auth: {
         login: async (email: string) => ({
             token: 'mock-token-vercel',
-            user: { id: 'u1', username: 'Demo Admin', email, role: 'admin', department: 'Demo' }
+            user: { id: 'u1', username: 'Demo Admin', email, role: 'admin' as const, department: 'Demo' } as User
         }),
-        getCurrentUser: async () => ({ id: 'u1', username: 'Demo Admin', email: 'admin@demo.com', role: 'admin' })
+        getCurrentUser: async () => ({ id: 'u1', username: 'Demo Admin', email: 'admin@demo.com', role: 'admin' as const } as User)
     },
     dashboard: {
         getKPIs: async () => MOCK_KPI_DATA,
@@ -57,9 +57,9 @@ export const mockAPI = {
     },
     violations: {
         getAll: async () => MOCK_VIOLATIONS_DATA,
-        resolve: async (id: string) => ({ ...MOCK_VIOLATIONS_DATA.find(v => v.id === id)!, status: 'resolved', resolved_at: new Date().toISOString() })
+        resolve: async (id: string) => ({ ...MOCK_VIOLATIONS_DATA.find(v => v.id === id)!, status: 'resolved' as const, resolved_at: new Date().toISOString() } as Violation)
     },
     response: {
-        deploy: async () => ({ id: 'd-mock', status: 'dispatched', deployed_at: new Date().toISOString() })
+        deploy: async () => ({ id: 'd-mock', zone_id: 'z1', deployed_by: 'System', team_size: 2, status: 'dispatched' as const, deployed_at: new Date().toISOString() } as ResponseDeployment)
     }
 };
