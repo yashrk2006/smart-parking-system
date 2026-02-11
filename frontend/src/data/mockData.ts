@@ -33,3 +33,33 @@ export const MOCK_USER_HISTORY: ParkingSession[] = [
     { id: 's2', zone_id: 'z3', zone_name: 'Lajpat Nagar', vehicle_number: 'DL-3C-AB-1234', start_time: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), end_time: new Date(Date.now() - 1000 * 60 * 60 * 22).toISOString(), cost: 120, status: 'completed' },
     { id: 's3', zone_id: 'z2', zone_name: 'Khan Market', vehicle_number: 'DL-3C-AB-1234', start_time: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), end_time: new Date(Date.now() - 1000 * 60 * 60 * 46).toISOString(), cost: 80, status: 'completed' },
 ];
+
+export const mockAPI = {
+    auth: {
+        login: async (email: string) => ({
+            token: 'mock-token-vercel',
+            user: { id: 'u1', username: 'Demo Admin', email, role: 'admin', department: 'Demo' }
+        }),
+        getCurrentUser: async () => ({ id: 'u1', username: 'Demo Admin', email: 'admin@demo.com', role: 'admin' })
+    },
+    dashboard: {
+        getKPIs: async () => MOCK_KPI_DATA,
+        getZonesLive: async () => MOCK_ZONES_DATA,
+        getActiveViolations: async () => MOCK_VIOLATIONS_DATA
+    },
+    zones: {
+        getAll: async () => MOCK_ZONES_DATA,
+        getById: async (id: string) => MOCK_ZONES_DATA.find(z => z.id === id) || MOCK_ZONES_DATA[0],
+        getOccupancy: async (id: string) => {
+            const z = MOCK_ZONES_DATA.find(z => z.id === id);
+            return { current_count: z?.current_count || 50, reserved_count: 5, last_updated: new Date().toISOString() };
+        }
+    },
+    violations: {
+        getAll: async () => MOCK_VIOLATIONS_DATA,
+        resolve: async (id: string) => ({ ...MOCK_VIOLATIONS_DATA.find(v => v.id === id)!, status: 'resolved', resolved_at: new Date().toISOString() })
+    },
+    response: {
+        deploy: async () => ({ id: 'd-mock', status: 'dispatched', deployed_at: new Date().toISOString() })
+    }
+};
