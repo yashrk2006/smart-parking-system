@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { MapPin, Navigation, Clock, Info, User, List, LogOut, Car, CreditCard, ChevronRight, Bike, X, Shield, Zap, Umbrella } from 'lucide-react';
+import { useState } from 'react';
+import { MapPin, Navigation, Clock, Info, User, List, LogOut, Car, CreditCard, ChevronRight, Bike, Shield, Zap, Umbrella } from 'lucide-react';
 import type { ParkingZone, ParkingSession, User as UserType } from '../types';
 import CityMap from './CityMap';
 

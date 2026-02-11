@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Lock, ChevronRight, ScanLine, Activity, Globe, User, Briefcase, AlertCircle, BadgeCheck, Smartphone } from 'lucide-react';
+import { Shield, Lock, ChevronRight, ScanLine, Activity, Briefcase, AlertCircle, BadgeCheck, Smartphone } from 'lucide-react';
 import { authAPI } from '../services/api';
 import type { User as UserType } from '../types';
 
@@ -146,8 +146,8 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                                         setError(null);
                                     }}
                                     className={`flex flex-col items-center justify-center gap-1 py-2 rounded-md text-xs font-medium transition-all ${role === r.id
-                                            ? 'bg-blue-600 text-white shadow-lg'
-                                            : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                                        ? 'bg-blue-600 text-white shadow-lg'
+                                        : 'text-slate-400 hover:text-white hover:bg-slate-700'
                                         }`}
                                 >
                                     <r.icon size={16} />

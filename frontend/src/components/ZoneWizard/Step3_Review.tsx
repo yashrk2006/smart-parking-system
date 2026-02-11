@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import NavigationControls from '../NavigationControls';
 
 interface Step3Props {

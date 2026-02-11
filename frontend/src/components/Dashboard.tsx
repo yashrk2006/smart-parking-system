@@ -1,7 +1,7 @@
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
-import { TrendingUp, AlertTriangle, Car, IndianRupee, Activity, Clock } from 'lucide-react';
+import { AlertTriangle, Car, IndianRupee, Activity, Clock } from 'lucide-react';
 import type { DashboardKPIs, ParkingZone, Violation } from '../types';
 
 interface DashboardProps {
@@ -12,7 +12,7 @@ interface DashboardProps {
     onNext?: () => void;
 }
 
-export default function Dashboard({ kpis, zones, violations, onBack, onNext }: DashboardProps) {
+export default function Dashboard({ kpis, zones, violations, onBack: _onBack, onNext: _onNext }: DashboardProps) {
     const stats = [
         { label: 'Efficiency', value: `${kpis.efficiency || 92}%`, change: '+4.2%', icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
         { label: 'Active Flow', value: kpis.total_vehicles, change: '+124', icon: Car, color: 'text-blue-500', bg: 'bg-blue-500/10' },

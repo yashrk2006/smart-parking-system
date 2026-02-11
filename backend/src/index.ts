@@ -136,9 +136,15 @@ setInterval(() => {
     }
 }, 3000); // Updates every 3 seconds
 
-httpServer.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Live Parking Simulator Active (Mock Data Mode)`);
-});
+// Export app for Vercel
+export default app;
+
+// Conditionally listen
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL_DEPLOYMENT !== 'true') {
+    httpServer.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        console.log(`Live Parking Simulator Active (Mock Data Mode)`);
+    });
+}
 
 export { io };

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Filter, Search, Shield, AlertTriangle, CheckCircle, Clock, MapPin, Download } from 'lucide-react';
 import type { Violation, ParkingZone } from '../types';
-import { dashboardAPI } from '../services/api';
 
 interface EnforcementProps {
     violations: Violation[];
@@ -32,8 +31,8 @@ export default function Enforcement({ violations, zones, onDispatch }: Enforceme
         if (searchTerm) {
             const lower = searchTerm.toLowerCase();
             result = result.filter(v =>
-                v.vehicle_number.toLowerCase().includes(lower) ||
-                v.violation_type.toLowerCase().includes(lower) ||
+                (v.vehicle_number || '').toLowerCase().includes(lower) ||
+                (v.violation_type || '').toLowerCase().includes(lower) ||
                 getZoneName(v.zone_id).toLowerCase().includes(lower)
             );
         }
@@ -50,6 +49,9 @@ export default function Enforcement({ violations, zones, onDispatch }: Enforceme
             // Find the violation
             const violation = violations.find(v => v.id === violationId);
             if (!violation) return;
+
+            // Trigger prop
+            onDispatch(violation);
 
             // Show feedback
             alert(`Dispatching unit to ${violation.vehicle_number} at ${getZoneName(violation.zone_id)}!`);

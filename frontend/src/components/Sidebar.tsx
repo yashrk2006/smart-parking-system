@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
     LayoutDashboard,
     Map as MapIcon,
@@ -14,10 +13,12 @@ interface SidebarProps {
     currentView: string;
     setView: (view: string) => void;
     onLogout: () => void;
+    collapsed: boolean;
+    setCollapsed: (collapsed: boolean) => void;
 }
 
-export default function Sidebar({ currentView, setView, onLogout }: SidebarProps) {
-    const [collapsed, setCollapsed] = useState(false);
+export default function Sidebar({ currentView, setView, onLogout, collapsed, setCollapsed }: SidebarProps) {
+    // const [collapsed, setCollapsed] = useState(false); // Lifted to App.tsx
 
     const menuItems = [
         { id: 'dashboard', label: 'Command Center', icon: LayoutDashboard },

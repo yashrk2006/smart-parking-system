@@ -9,7 +9,6 @@ import LoginPage from './components/LoginPage';
 import ZoneWizard from './components/ZoneWizard';
 import ResponseTeam from './components/ResponseTeam';
 import Enforcement from './components/Enforcement';
-import VendorDashboard from './components/VendorDashboard';
 import { useWebSocket } from './hooks/useWebSocket';
 import { dashboardAPI } from './services/api';
 import type { DashboardKPIs, ParkingZone, Violation, User, ParkingSession } from './types';
@@ -19,6 +18,9 @@ function App() {
     const [history, setHistory] = useState<string[]>(['dashboard']); // Initial view
     const [currentIndex, setCurrentIndex] = useState(0);
     const view = history[currentIndex];
+
+    // Sidebar State
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState<User | null>(null);
@@ -206,7 +208,7 @@ function App() {
     };
 
     // Handle Dispatch from Enforcement to Response Team
-    const handleEnforcementDispatch = (violation: Violation) => {
+    const handleEnforcementDispatch = (_violation: Violation) => {
         // Switch to the response view
         handleViewChange('response');
         // In a real implementation, we would pass this violation to the ResponseTeam component
@@ -225,10 +227,18 @@ function App() {
 
     return (
         <div className="flex h-screen bg-tactical-bg text-gray-100 overflow-hidden font-inter">
-            <Sidebar currentView={view} setView={handleViewChange} onLogout={handleLogout} />
+            <Sidebar
+                currentView={view}
+                setView={handleViewChange}
+                onLogout={handleLogout}
+                collapsed={!sidebarOpen}
+                setCollapsed={(c) => setSidebarOpen(!c)}
+            />
 
             <main className="flex-1 flex flex-col min-w-0">
                 <Header
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
                     kpis={kpis}
                     onBack={goBack}
                     onForward={goForward}

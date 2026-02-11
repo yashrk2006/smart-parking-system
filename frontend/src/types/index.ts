@@ -3,7 +3,7 @@ export interface User {
     id: string;
     username: string;
     email: string;
-    role: 'admin' | 'officer' | 'contractor';
+    role: 'admin' | 'officer' | 'contractor' | 'user';
     department?: string;
 }
 
@@ -53,6 +53,7 @@ export interface DashboardKPIs {
     ai_status: 'online' | 'offline' | 'degraded';
     system_health?: 'healthy' | 'degraded' | 'critical'; // Added
     enforcement_efficiency?: number;
+    efficiency?: number; // Added
 }
 
 export interface VehicleEvent {

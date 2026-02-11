@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import {
     LayoutDashboard, MapPin, IndianRupee, AlertTriangle, TrendingUp,
-    Settings, LogOut, Car, Users, Calendar
+    Settings, LogOut, Car, Users
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import type { ParkingZone, Violation, DashboardKPIs } from '../types';
 
 interface VendorDashboardProps {
@@ -14,7 +14,7 @@ interface VendorDashboardProps {
     onLogout: () => void;
 }
 
-export default function VendorDashboard({ vendorId, zones, violations, kpis, onLogout }: VendorDashboardProps) {
+export default function VendorDashboard({ vendorId, zones, violations, kpis: _kpis, onLogout }: VendorDashboardProps) {
     const [activeTab, setActiveTab] = useState('dashboard');
 
     // Filter data for this vendor (Mock logic: assume all assigned if id matches or just specific ones)
@@ -97,28 +97,28 @@ export default function VendorDashboard({ vendorId, zones, violations, kpis, onL
                                                 <h3 className="text-lg font-bold text-white">{zone.name}</h3>
                                                 <p className="text-xs text-gray-400">{zone.location_name}</p>
                                             </div>
-                                            <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${zone.capacity_status === 'over_capacity' ? 'bg-red-500/20 text-red-500' :
-                                                    zone.capacity_status === 'near_capacity' ? 'bg-amber-500/20 text-amber-500' : 'bg-emerald-500/20 text-emerald-500'
+                                            <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${(zone.capacity_status || 'normal') === 'over_capacity' ? 'bg-red-500/20 text-red-500' :
+                                                (zone.capacity_status || 'normal') === 'near_capacity' ? 'bg-amber-500/20 text-amber-500' : 'bg-emerald-500/20 text-emerald-500'
                                                 }`}>
-                                                {zone.capacity_status.replace('_', ' ')}
+                                                {(zone.capacity_status || 'normal').replace('_', ' ')}
                                             </span>
                                         </div>
 
                                         <div className="mb-4">
                                             <div className="flex justify-between text-sm mb-1 text-gray-400">
                                                 <span>Live Occupancy</span>
-                                                <span className="text-white font-bold">{Math.round((zone.current_count! / zone.max_capacity) * 100)}%</span>
+                                                <span className="text-white font-bold">{Math.round(((zone.current_count || 0) / zone.max_capacity) * 100)}%</span>
                                             </div>
                                             <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
                                                 <div
-                                                    className={`h-full rounded-full transition-all duration-500 ${zone.capacity_status === 'over_capacity' ? 'bg-red-500' :
-                                                            zone.capacity_status === 'near_capacity' ? 'bg-amber-500' : 'bg-emerald-500'
+                                                    className={`h-full rounded-full transition-all duration-500 ${(zone.capacity_status || 'normal') === 'over_capacity' ? 'bg-red-500' :
+                                                        (zone.capacity_status || 'normal') === 'near_capacity' ? 'bg-amber-500' : 'bg-emerald-500'
                                                         }`}
-                                                    style={{ width: `${(zone.current_count! / zone.max_capacity) * 100}%` }}
+                                                    style={{ width: `${((zone.current_count || 0) / zone.max_capacity) * 100}%` }}
                                                 />
                                             </div>
                                             <div className="mt-2 text-xs flex justify-between text-gray-500">
-                                                <span>{zone.current_count} Vehicles</span>
+                                                <span>{zone.current_count || 0} Vehicles</span>
                                                 <span>{zone.max_capacity} Max</span>
                                             </div>
                                         </div>
@@ -127,7 +127,7 @@ export default function VendorDashboard({ vendorId, zones, violations, kpis, onL
                                             <button className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg text-sm font-bold transition-colors">
                                                 View Details
                                             </button>
-                                            {zone.capacity_status === 'over_capacity' && (
+                                            {((zone.capacity_status || 'normal') === 'over_capacity') && (
                                                 <button className="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg text-sm font-bold transition-colors animate-pulse">
                                                     Resolve Breach
                                                 </button>
@@ -190,8 +190,8 @@ function NavButton({ icon: Icon, label, active, onClick }: any) {
         <button
             onClick={onClick}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${active
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
-                    : 'text-gray-400 hover:bg-slate-800 hover:text-white'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                : 'text-gray-400 hover:bg-slate-800 hover:text-white'
                 }`}
         >
             <Icon size={20} />

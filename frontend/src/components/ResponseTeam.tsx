@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Shield, MapPin, Truck, Bike, Clock, CheckCircle, AlertTriangle, User, Navigation, Phone } from 'lucide-react';
 import type { Violation, ParkingZone, ResponseDeployment } from '../types';
-import { dashboardAPI } from '../services/api';
 
 interface ResponseTeamProps {
     violations: Violation[];
@@ -10,7 +9,6 @@ interface ResponseTeamProps {
 
 export default function ResponseTeam({ violations, zones }: ResponseTeamProps) {
     const [deployments, setDeployments] = useState<ResponseDeployment[]>([]);
-    const [selectedViolation, setSelectedViolation] = useState<Violation | null>(null);
 
     // Mock Data for Demo if API fails
     const MOCK_DEPLOYMENTS: ResponseDeployment[] = [
@@ -39,7 +37,6 @@ export default function ResponseTeam({ violations, zones }: ResponseTeamProps) {
 
         // Optimistic UI Update
         setDeployments(prev => [newDeployment, ...prev]);
-        setSelectedViolation(null);
 
         // Simulate API call success
         setTimeout(() => alert(`Team dispatched to ${violation.vehicle_number}`), 500);
