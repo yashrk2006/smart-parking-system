@@ -6,6 +6,7 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
+        "start": "tsx server.ts",
         "preview": "vite preview"
     },
     "dependencies": {
@@ -21,7 +22,8 @@
         "react-leaflet": "^4.2.1",
         "recharts": "^2.10.0",
         "socket.io": "^4.8.3",
-        "socket.io-client": "^4.6.1"
+        "socket.io-client": "^4.6.1",
+        "tsx": "^4.21.0"
     },
     "devDependencies": {
         "@types/better-sqlite3": "^7.6.13",

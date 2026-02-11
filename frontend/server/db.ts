@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_PATH = path.resolve(__dirname, 'smart_parking.db');
+const DB_PATH = process.env.DB_PATH || path.resolve(__dirname, 'smart_parking.db');
 const SCHEMA_PATH = path.resolve(__dirname, 'schema.sql');
 const SEED_PATH = path.resolve(__dirname, 'seed.sql');
 
